@@ -17,3 +17,5 @@ Objectives:
 •	A specific opiate, like codeine, see that number of prescription of codeine, and see which states have the most number of prescriptions.  Then do a state by state comparison. 
 •	All opiates for the FDA list, does pdmp make any difference and using the color scheme and look at the % average and compare it to percentage points. 
 •	Will look at why there are changing trends for the following states (year-year) TX(2007-2017)x, NY(2007-2017), ND(2009-2017), KY (2009-2017), HI (1995-2017), DE ((2009-2017).
+
+percentage of narcotic to total pain killers | percentage deviance from yearly mean
