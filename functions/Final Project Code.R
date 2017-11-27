@@ -13,7 +13,7 @@ setwd('~/GitHub/final-project-chris-and-omair')
 #PATTERN = a text pattern you want to search the medicaid data by: e.g. "State" will pick up all, "201" will pick up since 2010
 #You can also concatenate for multiple searches
 
-refine <- function(PATTERN) {
+by_year <- function(PATTERN) {
   
   #A separate FDA dataset is used to obtain product data, including drug strengths and controlled status.
   
@@ -118,43 +118,21 @@ refine <- function(PATTERN) {
     Data <- Data%>%
       mutate(Year = name[5])
     
-    Graphing <- bind_rows(Graphing, Data)
+    central_data <- bind_rows(central_data, Data)
     
-    assign('Graphing', Graphing, envir = .GlobalEnv)
+    assign('central_data', central_data, envir = .GlobalEnv)
     
   }
 
 }
 
-#You can then sort by State  
+#Use skip_step_one function to obtain a summary dataset of all years processed in step one (if you already did it before)
 
-bystate <- function() {
-
-  States <- Graphing$State
-  
-  for(S in States){
-    
-    Data <- Graphing%>%
-      filter(State == S)
-    
-    Data[1] <- NULL
-    
-    Data <- Data[c(3,4,1,2)]
-    
-    dataname <- paste('./data/by_state/Data_', S, '.csv', sep = '')
-    
-    write_csv(Data, dataname)
-  }
-}  
-
-#Make a heatmap
-  #Use Graphing function to obtain a summary dataset of all years processed in the case you have the data preprocessed
-
-refineddata <- function() {
+skip_step_one <- function() {
   
   filenames <- list.files(path = './data/by_year', pattern = 'Data', full.names = TRUE)
   
-  Graphing <- data.frame(State = character(), Narcotic = numeric(), NonNarcotic = numeric(), Year = character())
+  central_data <- data.frame(State = character(), Narcotic = numeric(), NonNarcotic = numeric(), Year = character())
   
   for (f in filenames) {
   
@@ -167,55 +145,67 @@ refineddata <- function() {
     Data <- Data%>%
       mutate(Year = name[3])
     
+    central_data <- bind_rows(central_data, Data)
+    
+    assign('central_data', central_data, envir = .GlobalEnv)  
+  }
+}
+
+#You can then sort by State.
+
+by_state <- function() {
+  
+  States <- central_data$State
+  
+  for(S in States){
+    
+    Data <- central_data%>%
+      filter(State == S)
+    
+    Data[1] <- NULL
+    
+    Data <- Data[c(3,4,1,2)]
+    
+    dataname <- paste('./data/by_state/Data_', S, '.csv', sep = '')
+    
+    write_csv(Data, dataname)
+  }
+}  
+
+#This function generates two heatmaps.
+heatmap <- function() {
+  
+  central_data <- central_data%>%
+    mutate(Percentage = Narcotic / (Narcotic + NonNarcotic) * 100)
+  
+  #Generate dataframe for plotting
+  Graphing <- data.frame(State = character(), Narcotic = numeric(), NonNarcotic = numeric(), Year = character(), Percentage = numeric(), From.Mean = numeric())
+  
+  for (i in 1991:2017) {
+    Data <- central_data%>%
+      filter(Year == i)%>%
+      mutate(From.Mean = Percentage-(100*sum(Narcotic)/(sum(Narcotic)+sum(NonNarcotic))))
+    
     Graphing <- bind_rows(Graphing, Data)
     
     assign('Graphing', Graphing, envir = .GlobalEnv)  
   }
-}
-
-heatmap <- function() {
   
-  Graphing <- Graphing%>%
-    mutate(Percentage = Narcotic / (Narcotic + NonNarcotic) * 100)
-  
-  Mean<- data.frame(State = character(), Narcotic = numeric(), NonNarcotic = numeric(), Year = character(), Percentage = numeric(), From.Mean = numeric())
-  
-  for (i in 1991:2017) {
-    Data <- Graphing%>%
-      filter(Year == i)%>%
-      mutate(From.Mean = Percentage-(100*sum(Narcotic)/(sum(Narcotic)+sum(NonNarcotic))))
-    
-    Mean <- bind_rows(Mean, Data)
-    
-    assign('From_Mean', Mean, envir = .GlobalEnv)  
-  }
-  
-  ggplot(From_Mean) +
+  ggplot(Graphing) +
     geom_tile(aes(x = Year, y = State, fill = Percentage)) +
     scale_fill_gradientn(colours=c('white', 'red'), na.value = 'grey98',  values = rescale(c(0, 40))) +
-    ggtitle('Percentage of Painkillers that are Narcotics', subtitle = 'by Year and State') +
+    ggtitle('Painkillers that are Narcotics', subtitle = 'as a percent of total Painkillers') +
     theme(axis.text.x = element_text(angle = 90, vjust = 0.5))
 
-  ggplot(From_Mean) +
+  ggplot(Graphing) +
     geom_tile(aes(x = Year, y = State, fill = From.Mean)) +
     scale_fill_gradientn(colours=c('blue', 'white', 'red'), na.value = 'grey98', values = rescale(c(-15, 0, 25))) +
-    ggtitle('Percentage of Painkillers that are Narcotics', subtitle = 'by Year and State as a Percent from Mean') +
+    ggtitle('Painkillers that are Narcotics', subtitle = 'Percentage Points off of Mean for Year') +
     theme(axis.text.x = element_text(angle = 90, vjust = 0.5))
   
 }
 
-StateGraph <- function(PATTERN) {
-  
-  state <- list.files(path = './data/by_state/', pattern = PATTERN, full.names = TRUE)
-  
-  data <- read_csv(state)
-  graph <- data%>%
-    mutate(Percentage = Narcotic / (Narcotic + NonNarcotic) *100)
-  
-  ggplot(graph, aes(x = Year, y = Percentage)) +
-    geom_col(fill = 'blue')
-}
-
+#Nonfunctional
 fetch <- function(){
   data <- read_csv('https://data.medicaid.gov/api/views/q7kf-kjqz/rows.csv?accessType=DOWNLOAD')
   write_csv(data, './source/State_Drug_Utilization_Data_1991.csv')
