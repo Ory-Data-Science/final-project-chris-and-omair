@@ -12,8 +12,8 @@ The NDC text files, for cross referencing the various NDC codes. https://www.fda
 So we can see the % of a specific opiate drug that has changed over the years. 
 So the focuses is look at a general question, so track this trend. Show everything that could correlate and which of these trends are negatively correlated. Therefore look at the data and sift through the reasons at trends, so preventable medicines or opiates. Using the data to make informed questions. Document the thinking of data quality metrics and see that all this code that grabs the data and have the reasons. To see our questions and exploration of our data set! 
 Objectives:
-•	Number of prescription to Medicaid amount reimbursed. 
-•	Based by state and see the Medicaid amount reimbursed. 
+•	Number of prescription to Medicaid amount reimbursed. (changed)
+•	Based by state and see the Medicaid amount reimbursed. (changed)
 •	A specific opiate, like codeine, see that number of prescription of codeine, and see which states have the most number of prescriptions.  Then do a state by state comparison. 
-•	All opiates for the FDA list, does pdmp make any difference and using the color scheme 
-and look at the % average and compare it to percentage points. 
+•	All opiates for the FDA list, does pdmp make any difference and using the color scheme and look at the % average and compare it to percentage points. 
+•	Will look at why there are changing trends for the following states (year-year) TX(2007-2017)x, NY(2007-2017), ND(2009-2017), KY (2009-2017), HI (1995-2017), DE ((2009-2017).
