@@ -48,6 +48,9 @@ by_year <- function(PATTERN) {
   
   filenames <- list.files(path = './source', pattern = PATTERN, full.names = TRUE)
   
+  central_data <- data.frame(State = character(), Narcotic = integer(), NonNarcotic = integer(), Year = character(),
+                             Percentage = numeric(), From.Yearly.Mean = numeric())
+  
   for (f in filenames) {
     
     #Intial read stores base data as variable dataframe "Drug".
@@ -100,30 +103,46 @@ by_year <- function(PATTERN) {
       
     Data <- inner_join(Narcotic, NonNarcotic, by = "State")
     Data <- Data%>%rename(Narcotic = Number.of.Prescriptions.x, NonNarcotic = Number.of.Prescriptions.y)
-      
     
-    #Establishing file name.
-    #CSV written named "Year_[YEAR].csv" created in final project folder.
+    #Add year, percentage narcotic vs all painkillers, and percentage points off of yearly national mean.
     
     f <- gsub('[.csv]', '', f)
     namelist <- strsplit(f, '_')
     name <- unlist(namelist)
     
-    dataname <- paste('./data/by_year/Data_', name[5], '.csv', sep = '')
-    
-    write_csv(Data, dataname)
-    
-    #Generate combined dataframe in global environment for narcotic vs non-narcotic painkillers
-    
     Data <- Data%>%
       mutate(Year = name[5])
+    
+    Mean <- 100*sum(Data$Narcotic)/(sum(Data$Narcotic)+sum(Data$NonNarcotic))
+    
+    Data <- Data%>%
+      mutate(Percentage = Narcotic / (Narcotic + NonNarcotic) * 100)%>%
+      mutate(From.Yearly.Mean = Percentage-Mean)
+    
+    #Generate combined dataframe in global environment for narcotic vs non-narcotic painkillers
     
     central_data <- bind_rows(central_data, Data)
     
     assign('central_data', central_data, envir = .GlobalEnv)
     
   }
-
+  
+  for (i in 1991:2017) {
+    
+    #Sort data by year and reorder the dataframe
+    
+    Data <- central_data%>%
+      filter(Year == i)
+    
+    Data <- Data[c(4,1,2,3,5,6)]
+    
+    #CSV written named "Year_[YEAR].csv" created in final project folder.
+    
+    dataname <- paste('./data/by_year/Data_', i, '.csv', sep = '')
+  
+    write_csv(Data, dataname)
+  
+  }
 }
 
 #Use skip_step_one function to obtain a summary dataset of all years processed in step one (if you already did it before)
@@ -132,18 +151,11 @@ skip_step_one <- function() {
   
   filenames <- list.files(path = './data/by_year', pattern = 'Data', full.names = TRUE)
   
-  central_data <- data.frame(State = character(), Narcotic = numeric(), NonNarcotic = numeric(), Year = character())
+  central_data <- data.frame(State = character(), Narcotic = numeric(), NonNarcotic = numeric(), Year = numeric(), Percentage = numeric(), From.Yearly.Mean = numeric())
   
   for (f in filenames) {
   
     Data <- read_csv(f)
-    
-    f <- gsub('[.csv]', '', f)
-    namelist <- strsplit(f, '_')
-    name <- unlist(namelist)
-    
-    Data <- Data%>%
-      mutate(Year = name[3])
     
     central_data <- bind_rows(central_data, Data)
     
@@ -162,9 +174,7 @@ by_state <- function() {
     Data <- central_data%>%
       filter(State == S)
     
-    Data[1] <- NULL
-    
-    Data <- Data[c(3,4,1,2)]
+    Data <- Data[c(1,4,2,3,5,6)]
     
     dataname <- paste('./data/by_state/Data_', S, '.csv', sep = '')
     
@@ -175,22 +185,6 @@ by_state <- function() {
 #This function generates two heatmaps.
 heatmap <- function() {
   
-  central_data <- central_data%>%
-    mutate(Percentage = Narcotic / (Narcotic + NonNarcotic) * 100)
-  
-  #Generate dataframe for plotting
-  Graphing <- data.frame(State = character(), Narcotic = numeric(), NonNarcotic = numeric(), Year = character(), Percentage = numeric(), From.Mean = numeric())
-  
-  for (i in 1991:2017) {
-    Data <- central_data%>%
-      filter(Year == i)%>%
-      mutate(From.Mean = Percentage-(100*sum(Narcotic)/(sum(Narcotic)+sum(NonNarcotic))))
-    
-    Graphing <- bind_rows(Graphing, Data)
-    
-    assign('Graphing', Graphing, envir = .GlobalEnv)  
-  }
-  
   ggplot(Graphing) +
     geom_tile(aes(x = Year, y = State, fill = Percentage)) +
     scale_fill_gradientn(colours=c('white', 'red'), na.value = 'grey98',  values = rescale(c(0, 40))) +
@@ -198,7 +192,7 @@ heatmap <- function() {
     theme(axis.text.x = element_text(angle = 90, vjust = 0.5))
 
   ggplot(Graphing) +
-    geom_tile(aes(x = Year, y = State, fill = From.Mean)) +
+    geom_tile(aes(x = Year, y = State, fill = From.Yearly.Mean)) +
     scale_fill_gradientn(colours=c('blue', 'white', 'red'), na.value = 'grey98', values = rescale(c(-15, 0, 25))) +
     ggtitle('Painkillers that are Narcotics', subtitle = 'Percentage Points off of Mean for Year') +
     theme(axis.text.x = element_text(angle = 90, vjust = 0.5))
@@ -288,4 +282,3 @@ fetch <- function(){
   data <- read.socrata('https://data.medicaid.gov/resource/f8sh-7iwd.csv')
   write.csv(data, "./source/State_Drug_Utilization_Data_2017.csv")
 }
-
