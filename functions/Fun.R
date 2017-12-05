@@ -13,9 +13,7 @@ setwd('~/GitHub/final-project-chris-and-omair')
 #PATTERN = a text pattern you want to search the medicaid data by: e.g. "State" will pick up all, "201" will pick up since 2010
 #You can also concatenate for multiple searches
 
-by_year <- function() {
-  
-  PATTERN <- readline(prompt = 'Enter Search Pattern: ')
+refine <- function() {
   
   #A separate FDA dataset is used to obtain product data, including drug strengths and controlled status.
   
@@ -53,38 +51,10 @@ by_year <- function() {
   
   #Get filenames from source data folder
   
-  filenames <- list.files(path = './source', pattern = PATTERN, full.names = TRUE)
+  filenames <- list.files(path = './source', pattern = 'State', full.names = TRUE)
   
   central_data <- data.frame(State = character(), Narcotic = integer(), NonNarcotic = integer(), Year = character(),
                              Percentage = numeric(), From.Yearly.Mean = numeric())
-  
-  if (PATTERN == 'ALL') {
-    
-    s <- 1991
-    f <- 2017
-    
-    assign('s', s, envir = .GlobalEnv)
-    assign('f', f, envir = .GlobalEnv)
-    
-  } else
-    if (is.na(as.numeric(PATTERN)) == FALSE) {
-      s <- PATTERN
-      f <- PATTERN
-    
-      assign('s', s, envir = .GlobalEnv)
-      assign('f', f, envir = .GlobalEnv)
-    
-  } else
-    if (is.na(as.numeric(PATTERN)) == TRUE) {
-      list <- strsplit(PATTERN, '-')
-      years <- unlist(list)
-      s <- years[1]
-      f <- years[2]
-      
-      assign('s', s, envir = .GlobalEnv)
-      assign('f', f, envir = .GlobalEnv)
-    }
-    
   
   for (f in filenames) {
     
@@ -152,7 +122,8 @@ by_year <- function() {
     
     Data <- Data%>%
       mutate(Percentage = Narcotic / (Narcotic + NonNarcotic) * 100)%>%
-      mutate(From.Yearly.Mean = Percentage-Mean)
+      mutate(From.Yearly.Mean = Percentage-Mean)%>%
+      mutate(Yearly.Mean = Mean)
     
     #Generate combined dataframe in global environment for narcotic vs non-narcotic painkillers
     
@@ -162,39 +133,76 @@ by_year <- function() {
     
   }
   
-  for (i in 1991:2017) {
-    
-    #Sort data by year and reorder the dataframe
-    
-    Data <- central_data%>%
-      filter(Year == i)
-    
-    Data <- Data[c(4,1,2,3,5,6)]
-    
-    #CSV written named "Year_[YEAR].csv" created in final project folder.
-    
-    dataname <- paste('./data/by_year/Data_', i, '.csv', sep = '')
+  #Write out the summary dataset as "Central_Data.csv"
   
-    write_csv(Data, dataname)
+  write_csv(central_data, './data/Central_Data.csv')
   
-  }
 }
 
 #Use skip_step_one function to obtain a summary dataset of all years processed in step one (if you already did it before)
 
 skip_step_one <- function() {
   
-  filenames <- list.files(path = './data/by_year', pattern = 'Data', full.names = TRUE)
+  central_data <- read_csv('./data/Central_Data.csv')
   
-  central_data <- data.frame(State = character(), Narcotic = numeric(), NonNarcotic = numeric(), Year = numeric(), Percentage = numeric(), From.Yearly.Mean = numeric())
+  assign('central_data', central_data, envir = .GlobalEnv)
   
-  for (f in filenames) {
+}
+
+#You can sort by Year
+by_year <- function() {
   
-    Data <- read_csv(f)
+  PATTERN <- readline(prompt = 'Enter Search Pattern (ALL means all years, date range i.e. 2010-2014, single year i.e. 2016 : ')
+  
+  if (PATTERN == 'ALL') {
     
-    central_data <- bind_rows(central_data, Data)
+    s <- 1991
+    f <- 2017
     
-    assign('central_data', central_data, envir = .GlobalEnv)  
+    assign('s', s, envir = .GlobalEnv)
+    assign('f', f, envir = .GlobalEnv)
+    
+  } else
+    if (is.na(as.numeric(PATTERN)) == FALSE) {
+      s <- PATTERN
+      f <- PATTERN
+      
+      assign('s', s, envir = .GlobalEnv)
+      assign('f', f, envir = .GlobalEnv)
+      
+    } else
+      if (is.na(as.numeric(PATTERN)) == TRUE) {
+        list <- strsplit(PATTERN, '-')
+        years <- unlist(list)
+        s <- years[1]
+        f <- years[2]
+        
+        assign('s', s, envir = .GlobalEnv)
+        assign('f', f, envir = .GlobalEnv)
+      }
+  
+  year_subset_data <- data.frame(State = character(), Narcotic = integer(), NonNarcotic = integer(), Year = character(),
+                             Percentage = numeric(), From.Yearly.Mean = numeric())
+  
+  for (i in s:f) {
+    
+    #Sort data by year and reorder the dataframe
+    
+    Data <- central_data%>%
+      filter(Year == i)
+    
+    Data <- Data[c(4,1,2,3,5,6,7)]
+    
+    #Store subset data as a variable.
+    
+    year_subset_data <- rbind(year_subset_data, Data)
+    assign('year_subset_data', year_subset_data, envir = .GlobalEnv)
+    
+    #CSV written named "Year_[YEAR].csv" created in final project folder.
+    
+    dataname <- paste('./data/by_year/Data_', i, '.csv', sep = '')
+    write_csv(Data, dataname)
+    
   }
 }
 
@@ -212,7 +220,7 @@ by_state <- function() {
       filter(State == S)
     
     #Organize data by State, Year, # Narcotic, # NonNarcotic, % Narcotic / total Painkiller, Percentage Points off of Mean
-    Data <- Data[c(1,4,2,3,5,6)]
+    Data <- Data[c(1,4,2,3,5,6,7)]
     
     #Establish a dataframe name
     dataname <- paste('./data/by_state/Data_', S, '.csv', sep = '')
