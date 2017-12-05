@@ -13,9 +13,7 @@ setwd('~/GitHub/final-project-chris-and-omair')
 #PATTERN = a text pattern you want to search the medicaid data by: e.g. "State" will pick up all, "201" will pick up since 2010
 #You can also concatenate for multiple searches
 
-by_year <- function() {
-  
-  PATTERN <- readline(prompt = 'Enter Search Pattern: ')
+by_year <- function(PATTERN) {
   
   #A separate FDA dataset is used to obtain product data, including drug strengths and controlled status.
   
@@ -48,43 +46,10 @@ by_year <- function() {
                                                  'ACETAMINOPHEN|NAPROXEN|GABAPENTIN|INDOMETHACIN|PIROXICAM|DICLOFENAC|IBUPROFEN|CYCLOBENZAPRINE|
                                                  CARISOPRODOL|MELOXICAM|ORPHENADRINE|METHOCARBAMOL|METAXALONE'), 'NO'))
   
-  #Narcotics: Oxycodone, Morphine, Fentanyls, Hydrocodone, Morphones, Levorphanol, Methadone, Tramadol
-  #NonNarcotics: Acetaminophen, NSAIDs, Gabapentin, Muscle Relaxants
-  
-  #Get filenames from source data folder
-  
   filenames <- list.files(path = './source', pattern = PATTERN, full.names = TRUE)
   
   central_data <- data.frame(State = character(), Narcotic = integer(), NonNarcotic = integer(), Year = character(),
                              Percentage = numeric(), From.Yearly.Mean = numeric())
-  
-  if (PATTERN == 'ALL') {
-    
-    s <- 1991
-    f <- 2017
-    
-    assign('s', s, envir = .GlobalEnv)
-    assign('f', f, envir = .GlobalEnv)
-    
-  } else
-    if (is.na(as.numeric(PATTERN)) == FALSE) {
-      s <- PATTERN
-      f <- PATTERN
-    
-      assign('s', s, envir = .GlobalEnv)
-      assign('f', f, envir = .GlobalEnv)
-    
-  } else
-    if (is.na(as.numeric(PATTERN)) == TRUE) {
-      list <- strsplit(PATTERN, '-')
-      years <- unlist(list)
-      s <- years[1]
-      f <- years[2]
-      
-      assign('s', s, envir = .GlobalEnv)
-      assign('f', f, envir = .GlobalEnv)
-    }
-    
   
   for (f in filenames) {
     
@@ -202,19 +167,15 @@ skip_step_one <- function() {
 
 by_state <- function() {
   
-  #Get a vector for the states represented by the data
   States <- central_data$State
   
   for(S in States){
     
-    #Filter by state
     Data <- central_data%>%
       filter(State == S)
     
-    #Organize data by State, Year, # Narcotic, # NonNarcotic, % Narcotic / total Painkiller, Percentage Points off of Mean
     Data <- Data[c(1,4,2,3,5,6)]
     
-    #Establish a dataframe name
     dataname <- paste('./data/by_state/Data_', S, '.csv', sep = '')
     
     write_csv(Data, dataname)
