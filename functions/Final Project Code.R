@@ -232,14 +232,16 @@ heatmap <- function() {
     geom_tile(aes(x = Year, y = State, fill = Percentage)) +
     scale_fill_gradientn(colours=c('white', 'red'),  values = rescale(c(0, 40))) +
     ggtitle('Painkillers that are Narcotics', subtitle = 'as a percent of total painkillers') +
-    theme(axis.text.x = element_text(angle = 90, vjust = 0.5))
+    theme(axis.text.x = element_text(angle = 90, vjust = 0.5)) +
+    theme(legend.position = 'top')
 
   #Second heatmap uses the prior data, but shows it as the number of percentage points of the yearly national mean
   plotB <- ggplot(central_data) +
     geom_tile(aes(x = Year, y = State, fill = From.Yearly.Mean)) +
     scale_fill_gradientn(colours=c('blue', 'white', 'red'), values = rescale(c(-15, 0, 25))) +
     ggtitle('Painkillers that are Narcotics', subtitle = 'percentage points off of mean for year') +
-    theme(axis.text.x = element_text(angle = 90, vjust = 0.5))
+    theme(axis.text.x = element_text(angle = 90, vjust = 0.5)) +
+    theme(legend.position = 'top')
   
   #Create plots in the global environment
   assign('plotA', plotA, envir = .GlobalEnv)
