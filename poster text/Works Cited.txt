@@ -1,0 +1,9 @@
+Works Cited 
+Schuchat A, Guy GP Jr, Dowell D. Prescription Drug Monitoring Programs and Opioid Death Rates-Reply. JAMA. 2017 Nov 28;318(20):2045.
+“Prescription Drug Monitoring Frequently Asked Questions (FAQ) | The PDMP Training and Technical Assistance Center.” Www.pdmpassist.org, www.pdmpassist.org/content/prescription-drug-monitoring-frequently-asked-questions-faq
+“State Drug Utilization Data.” Medicaid.gov, www.medicaid.gov/medicaid/prescription-drugs/state-drug-utilization-data/index.html.
+https://github.com/Ory-Data-Science/final-project-chris-and-omair
+Contribution
+Chris Au – Coding / editing 
+Omair Khan -- Poster
+
