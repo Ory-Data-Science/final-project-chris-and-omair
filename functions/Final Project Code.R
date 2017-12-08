@@ -8,14 +8,12 @@ require(stringr)
 require(scales)
 setwd('~/GitHub/final-project-chris-and-omair')
 
-#refining function is below.
-#refine takes one argument:
-#PATTERN = a text pattern you want to search the medicaid data by: e.g. "State" will pick up all, "201" will pick up since 2010
-#You can also concatenate for multiple searches
+#Data analysis function is below.
+#It will prompt you for what years you wish to process: a specific year "####", a range of years "####-####", or a all of the data set "ALL"
 
 by_year <- function() {
   
-  PATTERN <- readline(prompt = 'Enter Search Pattern: ')
+  PATTERN <- readline(prompt = 'Enter years to process: ')
   
   #A separate FDA dataset is used to obtain product data, including drug strengths and controlled status.
   
@@ -260,8 +258,8 @@ heatmap <- function() {
   assign('plotB', plotB, envir = .GlobalEnv)
   
   #Export plots
-  ggsave(filename = 'Percent of Total Painkillers.png', plot = plotA, width = 9, height = 16, units = 'in', dpi = 300)
-  ggsave(filename = 'Off of Yearly Mean.png', plot = plotB, width = 9, height = 16, units = 'in', dpi = 300)
+  ggsave(filename = 'Percent of Total Painkillers.png', plot = plotA, width = 12, height = 16, units = 'in', dpi = 300)
+  ggsave(filename = 'Off of Yearly Mean.png', plot = plotB, width = 12, height = 16, units = 'in', dpi = 300)
   
 }
 
@@ -271,6 +269,7 @@ yearlymean <- function() {
   
   #Obtains yearly mean data.  Note usage of the mean function is actually pointless,
   #the means are already determined, just need to condense into appropriate count.
+  central_data$Year <- as.numeric(central_data$Year)
   graphing <- central_data%>%
     group_by(Year)%>%
     summarize(Yearly.Mean = mean(Yearly.Mean))
@@ -295,5 +294,5 @@ yearlymean <- function() {
   assign('plotC', plot, envir = .GlobalEnv)
   
   #Export plots
-  ggsave(filename = 'Yearly National Mean.png', plot = plotC, width = 8, height = 8, units = 'in', dpi = 300)
+  ggsave(filename = 'Yearly National Mean.png', plot = plotC, width = 9, height = 9, units = 'in', dpi = 300)
 }
