@@ -232,13 +232,13 @@ by_state <- function() {
 #This function generates two heatmaps.
 heatmap <- function() {
   
-  ggplot(Graphing) +
+  ggplot(central_data) +
     geom_tile(aes(x = Year, y = State, fill = Percentage)) +
     scale_fill_gradientn(colours=c('white', 'red'), na.value = 'grey98',  values = rescale(c(0, 40))) +
     ggtitle('Painkillers that are Narcotics', subtitle = 'as a percent of total Painkillers') +
     theme(axis.text.x = element_text(angle = 90, vjust = 0.5))
 
-  ggplot(Graphing) +
+  ggplot(central_data) +
     geom_tile(aes(x = Year, y = State, fill = From.Yearly.Mean)) +
     scale_fill_gradientn(colours=c('blue', 'white', 'red'), na.value = 'grey98', values = rescale(c(-15, 0, 25))) +
     ggtitle('Painkillers that are Narcotics', subtitle = 'Percentage Points off of Mean for Year') +

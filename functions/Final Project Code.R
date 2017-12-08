@@ -217,6 +217,7 @@ by_state <- function() {
     #Establish a dataframe name
     dataname <- paste('./data/by_state/Data_', S, '.csv', sep = '')
     
+    #Writes a CSV for each individual state
     write_csv(Data, dataname)
   }
 }  
@@ -224,100 +225,28 @@ by_state <- function() {
 #This function generates two heatmaps.
 heatmap <- function() {
   
-  ggplot(Graphing) +
+  central_data$Year <- as.character(central_data$Year)
+  
+  #First heatmap shows narcotics as a % of painkillers by year and state
+  plotA <- ggplot(central_data) +
     geom_tile(aes(x = Year, y = State, fill = Percentage)) +
-    scale_fill_gradientn(colours=c('white', 'red'), na.value = 'grey98',  values = rescale(c(0, 40))) +
-    ggtitle('Painkillers that are Narcotics', subtitle = 'as a percent of total Painkillers') +
+    scale_fill_gradientn(colours=c('white', 'red'),  values = rescale(c(0, 40))) +
+    ggtitle('Painkillers that are Narcotics', subtitle = 'as a percent of total painkillers') +
     theme(axis.text.x = element_text(angle = 90, vjust = 0.5))
 
-  ggplot(Graphing) +
+  #Second heatmap uses the prior data, but shows it as the number of percentage points of the yearly national mean
+  plotB <- ggplot(central_data) +
     geom_tile(aes(x = Year, y = State, fill = From.Yearly.Mean)) +
-    scale_fill_gradientn(colours=c('blue', 'white', 'red'), na.value = 'grey98', values = rescale(c(-15, 0, 25))) +
-    ggtitle('Painkillers that are Narcotics', subtitle = 'Percentage Points off of Mean for Year') +
+    scale_fill_gradientn(colours=c('blue', 'white', 'red'), values = rescale(c(-15, 0, 25))) +
+    ggtitle('Painkillers that are Narcotics', subtitle = 'percentage points off of mean for year') +
     theme(axis.text.x = element_text(angle = 90, vjust = 0.5))
   
-}
-
-#Nonfunctional
-fetch <- function(){
-  data <- read_csv('https://data.medicaid.gov/api/views/q7kf-kjqz/rows.csv?accessType=DOWNLOAD')
-  write_csv(data, './source/State_Drug_Utilization_Data_1991.csv')
+  #Create plots in the global environment
+  assign('plotA', plotA, envir = .GlobalEnv)
+  assign('plotB', plotB, envir = .GlobalEnv)
   
-  data <- read.socrata('https://data.medicaid.gov/resource/7t83-bmdc.csv')
-  write.csv(data, './source/State_Drug_Utilization_Data_1992.csv')
+  #Export plots
+  ggsave(filename = 'Percent of Total Painkillers.png', plot = plotA, width = 9, height = 16, units = 'in', dpi = 300)
+  ggsave(filename = 'Off of Yearly Mean.png', plot = plotB, width = 9, height = 16, units = 'in', dpi = 300)
   
-  data <- read.socrata('https://data.medicaid.gov/resource/d4zb-hchj.csv')
-  write.csv(data, './source/State_Drug_Utilization_Data_1993.csv')
-  
-  data <- read.socrata('https://data.medicaid.gov/resource/y3rw-ibat.csv')
-  write.csv(data, './source/State_Drug_Utilization_Data_1994.csv')
-  
-  data <- read.socrata('https://data.medicaid.gov/resource/aaka-kdax.csv')
-  write.csv(data, './source/State_Drug_Utilization_Data_1995.csv')
-  
-  data <- read.socrata('https://data.medicaid.gov/resource/crtc-n6kh.csv')
-  write.csv(data, './source/State_Drug_Utilization_Data_1996.csv')
-  
-  data <- read.socrata('https://data.medicaid.gov/resource/adb9-bvf8.csv')
-  write.csv(data, './source/State_Drug_Utilization_Data_1997.csv')
-  
-  data <- read.socrata('https://data.medicaid.gov/resource/mpxd-47jf.csv')
-  write.csv(data, './source/State_Drug_Utilization_Data_1998.csv')
-  
-  data <- read.socrata('https://data.medicaid.gov/resource/8car-a85u.csv')
-  write.csv(data, './source/State_Drug_Utilization_Data_1999.csv')
-  
-  data <- read.socrata('https://data.medicaid.gov/resource/xemf-shqf.csv')
-  write.csv(data, './source/State_Drug_Utilization_Data_2000.csv')
-  
-  data <- read.socrata('https://data.medicaid.gov/resource/7dxf-vdi8.csv')
-  write.csv(data, './source/State_Drug_Utilization_Data_2001.csv')
-  
-  data <- read.socrata('https://data.medicaid.gov/resource/npac-bg4r.csv')
-  write.csv(data, './source/State_Drug_Utilization_Data_2002.csv')
-  
-  data <- read.socrata('https://data.medicaid.gov/resource/yfr2-g35g.csv')
-  write.csv(data, './source/State_Drug_Utilization_Data_2003.csv')
-  
-  data <- read.socrata('https://data.medicaid.gov/resource/azm2-epd3.csv')
-  write.csv(data, './source/State_Drug_Utilization_Data_2004.csv')
-  
-  data <- read.socrata('https://data.medicaid.gov/resource/hxu8-ag9g.csv')
-  write.csv(data, './source/State_Drug_Utilization_Data_2005.csv')
-  
-  data <- read.socrata('https://data.medicaid.gov/resource/admb-uh5m.csv')
-  write.csv(data, './source/State_Drug_Utilization_Data_2006.csv')
-  
-  data <- read.socrata('https://data.medicaid.gov/resource/rpeh-qcu8.csv')
-  write.csv(data, './source/State_Drug_Utilization_Data_2007.csv')
-  
-  data <- read.socrata('https://data.medicaid.gov/resource/psbv-t9xz.csv')
-  write.csv(data, './source/State_Drug_Utilization_Data_2008.csv')
-  
-  data <- read.socrata('https://data.medicaid.gov/resource/5ncx-akys.csv')
-  write.csv(data, './source/State_Drug_Utilization_Data_2009.csv')
-  
-  data <- read.socrata('https://data.medicaid.gov/resource/gyfr-saxn.csv')
-  write.csv(data, './source/State_Drug_Utilization_Data_2010.csv')
-  
-  data <- read.socrata('https://data.medicaid.gov/resource/au58-3g3e.csv')
-  write.csv(data, './source/State_Drug_Utilization_Data_2011.csv')
-  
-  data <- read.socrata('https://data.medicaid.gov/resource/jzhb-tr7x.csv')
-  write.csv(data, './source/State_Drug_Utilization_Data_2012.csv')
-  
-  data <- read.socrata('https://data.medicaid.gov/resource/hcg7-jjb2.csv')
-  write.csv(data, './source/State_Drug_Utilization_Data_2013.csv')
-  
-  data <- read.socrata('https://data.medicaid.gov/resource/qpz6-74iw.csv')
-  write.csv(data, './source/State_Drug_Utilization_Data_2014.csv')
-  
-  data <- read.socrata('https://data.medicaid.gov/resource/m4ab-dkvc.csv')
-  write.csv(data, './source/State_Drug_Utilization_Data_2015.csv')
-  
-  data <- read.socrata('https://data.medicaid.gov/resource/neai-csgh.csv')
-  write.csv(data, './source/State_Drug_Utilization_Data_2016.csv')
-  
-  data <- read.socrata('https://data.medicaid.gov/resource/f8sh-7iwd.csv')
-  write.csv(data, "./source/State_Drug_Utilization_Data_2017.csv")
 }
