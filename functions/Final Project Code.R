@@ -252,3 +252,36 @@ heatmap <- function() {
   ggsave(filename = 'Off of Yearly Mean.png', plot = plotB, width = 9, height = 16, units = 'in', dpi = 300)
   
 }
+
+#This function generates a graph showing trends in the yearly national mean of narcotics vs painkillers as a whole.
+
+yearlymean <- function() {
+  
+  #Obtains yearly mean data.  Note usage of the mean function is actually pointless,
+  #the means are already determined, just need to condense into appropriate count.
+  graphing <- central_data%>%
+    group_by(Year)%>%
+    summarize(Yearly.Mean = mean(Yearly.Mean))
+  
+  #Create plot
+  plot <- ggplot(graphing) +
+    geom_point(aes(x = Year, y = Yearly.Mean), fill = 'blue', size = 3) +
+    geom_line(aes(x = Year, y = Yearly.Mean), color = 'blue', size = 2, alpha = 0.5) +
+    ggtitle('Yearly National Mean', subtitle = 'Percentage of Painkillers that are Narcotics') +
+    ylab('Mean') +
+    theme(panel.background = element_rect(fill = 'white'),
+          panel.grid.minor.x = element_line(color = 'black'),
+          panel.grid.major.x = element_line(color = 'black'),
+          panel.grid.minor.y = element_line(color = 'black'),
+          panel.grid.major.y = element_line(color = 'black'),
+          axis.text = element_text(size = 10),
+          plot.title = element_text(size = 24),
+          plot.subtitle = element_text(size = 16),
+          axis.title = element_text(size = 12))
+  
+  #Create plot in global environment
+  assign('plotC', plot, envir = .GlobalEnv)
+  
+  #Export plots
+  ggsave(filename = 'Yearly National Mean.png', plot = plotC, width = 8, height = 8, units = 'in', dpi = 300)
+}
